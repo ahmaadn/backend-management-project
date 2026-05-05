@@ -1,179 +1,107 @@
-# Backend Sistem Manajemen Proyek
+# Backend Management Project
 
-Backend API untuk sistem manajemen proyek yang dibangun menggunakan FastAPI (async), SQLAlchemy, dan PostgreSQL. Mendukung manajemen proyek, tugas, anggota tim, notifikasi real-time (SSE, WebSocket, Pusher), audit timeline (perubahan status, judul, assignee), integrasi layanan Pegawai eksternal, upload file ke Cloudinary, serta arsitektur modular dengan pola repository & unit of work.
+A robust backend API for a project management system built with [FastAPI](https://fastapi.tiangolo.com/). This application utilizes a clean, domain-driven architecture and features real-time notifications, role-based access control (RBAC), and comprehensive task tracking capabilities.
 
-## 🚀 Fitur
+## Features
 
-- **FastAPI (Async)** - Kinerja tinggi dengan dokumentasi otomatis.
-- **SQLAlchemy ORM (Async)** - Akses database efisien & terstruktur.
-- **PostgreSQL** - Database relational yang andal.
-- **Alembic Migrations** - Versi skema database terkelola.
-- **JWT Authentication** - Keamanan akses berbasis token.
-- **Manajemen User & Role** - Admin, Project Manager, Member.
-- **Manajemen Proyek & Tugas** - CRUD proyek, tugas, milestone, kategori, lampiran, komentar.
-- **Notifikasi Real-time** - SSE & WebSocket; opsi Pusher sebagai driver eksternal.
-- **Audit Timeline** - Perubahan status, judul, assignee tugas digabung dengan komentar.
-- **Notifikasi User** - Baca/belum dibaca, sortir terbaru/terlama.
-- **Pagination & Search User** - Query dengan `per_page` dan `search`.
-- **Integrasi Layanan Pegawai** - Pengambilan info user eksternal dengan cache per-request.
-- **Email Integration** - Pengiriman email untuk event penting.
-- **Upload File Cloudinary** - Penyimpanan media eksternal dengan fallback avatar otomatis.
-- **Arsitektur Modular** - CBV, repository, unit of work, dependency injection.
-- **Event-Driven** - Event internal untuk notifikasi & side-effect.
+* **User & Role Management**: Secure authentication, authorization, and role assignments (e.g., Project Manager, Member).
+* **Project Tracking**: Create, update, and organize projects, milestones, and specific categories.
+* **Task Management**: Assign tasks to users, track statuses, leave comments, and upload file attachments.
+* **Real-time Notifications**: Integrated support for Server-Sent Events (SSE), WebSockets, and Pusher for instant updates.
+* **Audit Logging**: Automatically track state changes and user actions across projects and tasks.
+* **Cloud Storage**: Seamless Cloudinary integration for handling task and project attachments.
+* **Database Migrations**: Version-controlled database schema managed via Alembic.
 
-## 📋 Persyaratan
+## Tech Stack
 
-- Python 3.12+
-- PostgreSQL
-- UV package manager (recommended) atau pip
-- Akun Cloudinary (untuk upload file)
-- Akun Pusher (opsional jika ingin mengaktifkan driver Pusher)
+* **Framework**: FastAPI (Python)
+* **ORM & Database**: SQLAlchemy (Async support recommended), Alembic
+* **Package Management**: [uv](https://github.com/astral-sh/uv) (and `requirements.txt` fallback)
+* **Real-time**: WebSockets, SSE, Pusher
+* **File Storage**: Cloudinary
+* **Testing**: Pytest
 
-## 🛠️ Instalasi
+## Prerequisites
 
-### 1. Clone repository
-```bash
-git clone https://gitlab.com/ahmaadn01/backend-sistem-management-proyek.git
-cd backend-sistem-manajement-project
-```
+* Python 3.10+ (Refer to `.python-version`)
+* A supported Relational Database (e.g., PostgreSQL or MySQL)
+* [uv](https://github.com/astral-sh/uv) package manager (recommended for speed) or pip.
 
-### 2. Install dependencies
+## Getting Started
 
-Siapkan virtual environment (disarankan jika menggunakan pip):
-
-```powershell
-# Windows (PowerShell)
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
+### 1. Clone the repository
 
 ```bash
-# Linux / macOS
-python -m venv .venv
-source .venv/bin/activate
+git clone https://github.com/ahmaadn/backend-management-project.git
+cd backend-management-project
 ```
 
-Lokal (development):
-```bash
-# Menggunakan UV (recommended)
-uv sync
+### 2. Environment Configuration
 
-# Atau menggunakan pip
-pip install -r requirements.txt
-```
+Copy the example environment file and update it with your specific credentials:
 
-Produksi (minimal):
-```bash
-pip install --no-cache-dir -r requirements.txt
-```
-
-### 3. Salin & konfigurasi environment
 ```bash
 cp .env.example .env
 ```
-Edit `.env` sesuai kebutuhan:
-Wajib dasar:
-```
-DB_SERVER=127.0.0.1
-DB_PORT=xxx
-DB_DATABASE=xxx
-DB_USERNAME=xxx
-DB_PASSWORD=xxx
-```
-Cloudinary:
-```
-CLOUDINARY_CLOUD_NAME=xxx
-CLOUDINARY_API_KEY=xxx
-CLOUDINARY_API_SECRET=xxx
-```
-Realtime (opsional Pusher):
-```
-REALTIME_DRIVERS=pusher,sse,websocket
-PUSHER_APP_ID=xxx
-PUSHER_KEY=xxx
-PUSHER_SECRET=xxx
-PUSHER_CLUSTER=ap1
-PUSHER_SSL=1
-```
-Integrasi layanan Pegawai eksternal, lihat configuasi url di `app/client/pegawai_client.py`   :
-```
-BASE_API_PEGAWAI=https://pegawai.example.com
+*Make sure to configure your database connection string, JWT secrets, Cloudinary API keys, and Pusher credentials.*
+
+### 3. Install Dependencies
+
+Using `uv` (Recommended):
+```bash
+uv sync
 ```
 
-### 4. Migrasi database
+Or using `pip`:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows use `venv\\Scripts\\activate`
+pip install -r requirements.txt
+```
+
+### 4. Database Migrations
+
+Apply the latest database migrations to set up your tables:
+
 ```bash
 alembic upgrade head
 ```
 
-### 5. (Opsional) Seed data
+*(Optional) If the project includes a seeder script, you can populate initial data:*
 ```bash
-uv run python app/seeder.py
+python -m app.seeder
 ```
 
-## 🚀 Menjalankan Aplikasi
+### 5. Run the Application
 
-### Development
+Start the FastAPI development server:
+
 ```bash
-# Menggunakan FastAPI development server
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload
 ```
 
-### Production
-```bash
-# Menggunakan production server
-uvicorn app.main:app --host 0.0.0.0 --port 8000
-```
+* **Swagger UI (Interactive API Docs)**: [http://localhost:8000/docs](http://localhost:8000/docs)
+* **ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 
-Aplikasi akan berjalan di `http://localhost:8000`
+## Project Structure
 
-## 📚 API Documentation
-
-Setelah aplikasi berjalan, dokumentasi API dapat diakses di:
-- **Swagger UI**: `http://localhost:8000/docs`
-
-## 🗂️ Struktur Proyek
-
-```
+```text
 app/
-├── main.py                 # Entry FastAPI
-├── seeder.py               # Script seeding opsional
-├── sse.py / websocket.py   # Implementasi real-time SSE & WS
-├── api/
-│   ├── api.py              # Router aggregator
-│   ├── dependencies/       # Dependency (auth, repos, services)
-│   └── routes/             # Endpoint modular (task, project, user, dll)
-├── client/                 # HTTP client ke layanan eksternal (Pegawai)
-├── core/                   # Config, realtime driver, settings
-├── db/
-│   ├── base.py / meta.py   # Deklarasi Base / metadata
-│   ├── migrations/         # Alembic migration scripts
-│   ├── models/             # SQLAlchemy models
-│   ├── repositories/       # Repository pattern
-│   └── uow/                # Unit of Work
-├── middleware/             # Middleware kustom (context, request)
-├── schemas/                # Pydantic schema (user, task, project, dll)
-├── services/               # Business logic (task, user, notification, dll)
-├── static/                 # Static files (robots.txt)
-├── templates/              # Jinja2 templates (pusher test, dll)
-├── utils/                  # Helper umum (cloudinary, email, pagination)
-└── policies/               # (Jika ada) kebijakan akses / domain rules
+├── api/          # FastAPI routers and dependency injections
+├── client/       # External service clients (e.g., Pegawai client)
+├── core/         # Core configurations, domain events, realtime drivers, and policies
+├── db/           # SQLAlchemy models, repositories, uow, and Alembic migrations
+├── middleware/   # Custom request and context middlewares
+├── schemas/      # Pydantic models for request/response validation
+├── services/     # Core business logic layer
+├── utils/        # Helper functions, cloud uploads, and mail utilities
+└── main.py       # FastAPI application entry point
 ```
 
+## Testing
 
-## 🔧 Database Migrations
+Run the automated test suite using `pytest`:
 
 ```bash
-# Membuat migration baru
-alembic revision --autogenerate -m "Description"
-
-# Menjalankan migration
-alembic upgrade head
-
-# Rollback migration
-alembic downgrade -1
+pytest
 ```
-
-## 📝 License
-
-Project ini menggunakan lisensi MIT. Lihat file `LICENSE` untuk detail lebih lanjut.
-
